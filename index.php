@@ -10,9 +10,51 @@ License: GPL2
 */
 
 function openai_schedule_text_generation( $titles, $interval ) {
+    $names = array(
+        "Barack Obama",
+        "George W. Bush",
+        "Bill Clinton",
+        "Ronald Reagan",
+        "John F. Kennedy",
+        "Richard Nixon",
+        "Winston Churchill",
+        "Mahatma Gandhi",
+        "Martin Luther King Jr.",
+        "Nelson Mandela",
+        "Margaret Thatcher",
+        "Albert Einstein",
+        "Jane Austen",
+        "Ernest Hemingway",
+        "William Shakespeare",
+        "Mark Twain",
+        "Charles Dickens",
+        "Friedrich Nietzsche",
+        "Marie Curie",
+        "Virginia Woolf",
+        "Pablo Picasso",
+        "Fidel Castro",
+        "Sigmund Freud",
+        "Dalai Lama",
+        "Stephen Hawking",
+        "Malcolm X",
+        "Donald Trump", // 美国前总统，独特的政治语言风格
+        "George Orwell", // 英国作家，1984和动物农场的作者，独特的政治寓言语言风格
+        "J.K. Rowling", // 英国作家，哈利·波特系列的作者，奇幻文学语言风格
+        "J.R.R. Tolkien", // 英国作家，魔戒系列的作者，史诗奇幻文学语言风格
+        "Agatha Christie", // 英国侦探小说作家，神秘悬疑语言风格
+        "Stephen King", // 美国恐怖小说作家，悬疑恐怖语言风格
+        "F. Scott Fitzgerald", // 美国作家，了不起的盖茨比的作者，独特的现代主义语言风格
+        "Harper Lee", // 美国作家，杀死一只知更鸟的作者，社会主义现实主义语言风格
+        "Ray Bradbury" // 美国科幻小说作家，华氏451度的作者，科幻语言风格
+    );
+    // 随机选择一个名字
+    $randomName = $names[array_rand($names)];
+
+    // 创建一个新的模板，用随机选择的名字替换 "Trump"
+    $prompt_template = sprintf('Do not write like an AI, instead, write a 2000 words article in %s\'s language style about: %%s', $randomName);
     $now = time();
     foreach ( $titles as $title ) {
-        $prompt = 'Write a 2000-word article about "'.$title.'".';
+        $prompt = sprintf( $prompt_template, $title );
         if ( ! wp_next_scheduled( 'openai_generate_text', array( $prompt, $title ) ) ) {
             wp_schedule_single_event( $now, 'openai_generate_text', array( $prompt, $title ) );
             $now += $interval;
