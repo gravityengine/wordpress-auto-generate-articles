@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: OpenAI Article Auto Generator for WordPress
+Plugin Name: OpenAI Article Auto Generator
 Plugin URI: https://xunika.uk
 Description: Generates text using OpenAI's gpt-3.5-turbo model
 Version: 1.2
@@ -248,7 +248,7 @@ function openai_settings_page() {
 }
 ?>
     <div class="wrap">
-        <h1>OpenAI Settings</h1>
+        <h1>Settings</h1>
         <form method="post" action="">
             <label for="openai_num_titles">Number of articles to generate:</label>
             <input type="number" name="openai_num_titles" min="1" required>
@@ -272,6 +272,6 @@ function openai_settings_link( $links ) {
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'openai_settings_link' );
 
 function openai_settings_menu() {
-    add_options_page( 'OpenAI Settings', 'OpenAI Settings', 'manage_options', 'openai-settings', 'openai_settings_page' );
+    add_options_page( 'Article Auto Generator', 'Article Auto Generator', 'manage_options', 'openai-settings', 'openai_settings_page' );
 }
 add_action( 'admin_menu', 'openai_settings_menu' );
