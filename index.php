@@ -246,6 +246,10 @@ function openai_settings_page() {
         update_option( 'openai_post_date', $post_date );
     }
 }
+    if (isset($_POST['view_schedule'])) {
+        openai_view_schedule();
+        return;
+    }
 ?>
     <div class="wrap">
         <h1>Settings</h1>
@@ -259,7 +263,49 @@ function openai_settings_page() {
             <p class="description">Enter the interval time (in seconds) between each article generation.</p>
             <input type="datetime-local" id="openai_post_date" name="openai_post_date" value="<?php echo esc_attr( get_option('openai_post_date') ); ?>" />
             <input type="submit" name="generate_articles" class="button button-primary" value="Generate Articles">
+            <input type="submit" name="view_schedule" class="button" value="View Schedule">
         </form>
+    </div>
+    <?php
+}
+
+function openai_view_schedule() {
+    // 获取所有已安排的事件
+    $scheduled_events = _get_cron_array();
+    $plugin_callback = 'openai_generate_text'; // 你的插件回调函数名称
+
+    ?>
+    <div class="wrap">
+        <h1>Scheduled Events</h1>
+        <table class="widefat">
+            <thead>
+                <tr>
+                    <th>Callback</th>
+                    <th>Next Run</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($scheduled_events as $timestamp => $cronhooks) : ?>
+                    <?php foreach ($cronhooks as $cronhook => $cronhook_data) : ?>
+                        <?php if ($cronhook === $plugin_callback) : ?>
+                            <?php foreach ($cronhook_data as $key => $schedule) : ?>
+                                <?php
+                                $next_run = $timestamp;
+                                if (isset($schedule['interval'])) {
+                                    $next_run += $schedule['interval'];
+                                }
+                                $next_run_formatted = date('Y-m-d H:i:s', $next_run);
+                                ?>
+                                <tr>
+                                    <td><?php echo $cronhook; ?></td>
+                                    <td><?php echo $next_run_formatted; ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
     <?php
 }
