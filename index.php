@@ -264,7 +264,9 @@ function openai_settings_page() {
             <input type="datetime-local" id="openai_post_date" name="openai_post_date" value="<?php echo esc_attr( get_option('openai_post_date') ); ?>" />
             <input type="submit" name="generate_articles" class="button button-primary" value="Generate Articles">
         </form>
-        <input type="submit" name="view_schedule" class="button" value="View Schedule">
+        <form method="post" action="">
+            <input type="submit" name="view_schedule" class="button" value="View Schedule">
+        </form>
     </div>
     <?php
 }
