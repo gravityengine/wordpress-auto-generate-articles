@@ -263,8 +263,8 @@ function openai_settings_page() {
             <p class="description">Enter the interval time (in seconds) between each article generation.</p>
             <input type="datetime-local" id="openai_post_date" name="openai_post_date" value="<?php echo esc_attr( get_option('openai_post_date') ); ?>" />
             <input type="submit" name="generate_articles" class="button button-primary" value="Generate Articles">
-            <input type="submit" name="view_schedule" class="button" value="View Schedule">
         </form>
+        <input type="submit" name="view_schedule" class="button" value="View Schedule">
     </div>
     <?php
 }
