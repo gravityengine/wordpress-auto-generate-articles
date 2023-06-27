@@ -166,56 +166,65 @@ function openai_handle_text_generation( $prompt, $title ) {
 add_action( 'openai_generate_text', 'openai_handle_text_generation', 10, 2 );
 
 function openai_generate_titles( $num_titles ) {
-    // Prepare the prompt
-    $prompt = "Generate a random English article title";
-
     $titles = array();
 
     for ( $i = 0; $i < $num_titles; $i++ ) {
-        // Set up the API request
-        $openai_api_key = get_option( 'openai_api_key' );
-        if ( ! $openai_api_key ) {
-            error_log( 'Invalid OpenAI API key.' );
-            return;
-        }
+        // Get a random word
+        $randomWordJson = file_get_contents("https://random-word-api.herokuapp.com/word?number=1");
+        $randomWordArray = json_decode($randomWordJson, true);
 
-        $data = array(
-            'model' => 'gpt-3.5-turbo-16k',
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => $prompt
+        if (is_array($randomWordArray) && count($randomWordArray) > 0) {
+            // Prepare the prompt
+            $prompt = "Generate a random English article title about " . $randomWordArray[0];
+
+            // Set up the API request
+            $openai_api_key = get_option( 'openai_api_key' );
+            if ( ! $openai_api_key ) {
+                error_log( 'Invalid OpenAI API key.' );
+                return;
+            }
+
+            $data = array(
+                'model' => 'gpt-3.5-turbo-16k',
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => $prompt
+                    ]
                 ]
-            ]
-        );
+            );
 
-        $json_data = wp_json_encode( $data );
+            $json_data = wp_json_encode( $data );
 
-        // Send the request to OpenAI API
-        $ch = curl_init();
-        curl_setopt( $ch, CURLOPT_URL, "https://api.openai.com/v1/chat/completions" );
-        curl_setopt( $ch, CURLOPT_POST, 1 );
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, $json_data );
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $openai_api_key
-        ) );
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-        $response = curl_exec( $ch );
-        $http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-        curl_close( $ch );
+            // Send the request to OpenAI API
+            $ch = curl_init();
+            curl_setopt( $ch, CURLOPT_URL, "https://api.openai.com/v1/chat/completions" );
+            curl_setopt( $ch, CURLOPT_POST, 1 );
+            curl_setopt( $ch, CURLOPT_POSTFIELDS, $json_data );
+            curl_setopt( $ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $openai_api_key
+            ) );
+            curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+            $response = curl_exec( $ch );
+            $http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+            curl_close( $ch );
 
-        // Check for errors
-        if ( $http_code !== 200 ) {
-            error_log( 'OpenAI API request failed with HTTP error: ' . $http_code );
+            // Check for errors
+            if ( $http_code !== 200 ) {
+                error_log( 'OpenAI API request failed with HTTP error: ' . $http_code );
+                return;
+            }
+
+            // Parse the response
+            $response_data = json_decode( $response, true );
+            $text = $response_data['choices'][0]['message']['content'];
+
+            $titles[] = $text;
+        } else {
+            error_log( 'Could not retrieve random noun.' );
             return;
         }
-
-        // Parse the response
-        $response_data = json_decode( $response, true );
-        $text = $response_data['choices'][0]['message']['content'];
-
-        $titles[] = $text;
     }
 
     return $titles;
